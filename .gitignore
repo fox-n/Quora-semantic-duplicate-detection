@@ -1,0 +1,16 @@
+# data
+*.csv
+*.csv.zip
+!reports/experiment_table.csv
+
+# system
+.DS_Store
+
+# python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# env
+.venv/
+venv/
