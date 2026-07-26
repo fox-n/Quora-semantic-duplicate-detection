@@ -131,6 +131,15 @@ def add_tfidf_cosine_similarity(df, q1_col="question1", q2_col="question2"):
     Both columns are run through preprocess_text() first (stop words removed)
     before vectorizing. Uses paired_cosine_distances, which returns
     *distance*, hence the 1 - ... to convert to similarity.
+
+    Clipped to [0, 1]: TF-IDF vectors are non-negative, so true cosine
+    similarity is mathematically bounded to [0, 1] -- but 1 - distance can
+    land a hair outside that range (e.g. -4.44e-16) due to floating-point
+    rounding, especially for near-zero vectors (a question that's entirely
+    stop words becomes an empty string after preprocess_text, hence a
+    zero vector). Downstream, log_loss/roc_auc reject values outside
+    [0, 1] outright, so this needs to be clipped here at the source rather
+    than patched at the metrics layer.
     """
     q1_clean = df[q1_col].apply(preprocess_text)
     q2_clean = df[q2_col].apply(preprocess_text)
@@ -142,7 +151,8 @@ def add_tfidf_cosine_similarity(df, q1_col="question1", q2_col="question2"):
     vect_q1 = vectorizer.transform(q1_clean)
     vect_q2 = vectorizer.transform(q2_clean)
 
-    df["cosine_similarity"] = 1 - paired_cosine_distances(vect_q1, vect_q2)
+    cosine_similarity = 1 - paired_cosine_distances(vect_q1, vect_q2)
+    df["cosine_similarity"] = cosine_similarity.clip(0, 1)
     return df
 
 

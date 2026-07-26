@@ -100,7 +100,7 @@ def compute_metrics(y_true, y_pred, y_score, model_name, threshold=None, params=
     return results
 
 
-def append_to_experiment_table(results, path='experiment_table.csv'):
+def append_to_experiment_table(results, path='/Users/nadiiababanska/Desktop/claude_coowork/ML_final_project/reports/experiment_table.csv'):
     """Append one experiment's results (a dict from compute_metrics) as a
     row to the running experiment table CSV.
 
