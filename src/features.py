@@ -31,34 +31,15 @@ import nltk
 from nltk.tokenize import word_tokenize
 nltk.download('punkt')
 nltk.download('punkt_tab')
-nltk.download('wordnet')
-nltk.download('omw-1.4')
-nltk.download('averaged_perceptron_tagger')
-nltk.download('averaged_perceptron_tagger_eng')
-from nltk.stem import WordNetLemmatizer
-from nltk.corpus import wordnet
+from nltk.stem import SnowballStemmer
 
 
-def get_wordnet_pos(treebank_tag):
-    """Function mapping POS-tegs"""
-    if treebank_tag.startswith('J'):
-        return wordnet.ADJ
-    elif treebank_tag.startswith('V'):
-        return wordnet.VERB
-    elif treebank_tag.startswith('N'):
-        return wordnet.NOUN
-    elif treebank_tag.startswith('R'):
-        return wordnet.ADV
-    else:
-        return wordnet.NOUN
-
-
-lemmatizer = WordNetLemmatizer()
+stemmer = SnowballStemmer("english")
 
 
 def preprocess_text(text):
-    """Lowercase, tokenize (whitespace split), and drop English stop words.
-    Returns a cleaned string (tokens rejoined with a single space).
+    """Lowercase, tokenize, drop English stop words, and stem the remaining
+    tokens. Returns a cleaned string (tokens rejoined with a single space).
 
     Used before word_overlap, bigrams_overlap, and TF-IDF vectorization --
     without it, stop words like "what"/"is"/"the" inflate common_words,
@@ -66,12 +47,17 @@ def preprocess_text(text):
     questions, since those words match regardless of topic. TF-IDF partially
     compensates for this on its own via IDF down-weighting, but the raw
     word/bigram overlap features do not, so this step matters most for those.
+
+    Uses SnowballStemmer (rule-based suffix stripping) instead of
+    WordNetLemmatizer + POS-tagging: stemming is context-independent, so the
+    same word always maps to the same stem regardless of sentence structure.
+    This matters here because POS-tagging short, informal questions is
+    unreliable, and inconsistent tags led to inconsistent lemmas -- which hurt
+    the exact-match features (jaccard, word_match_share, bigram overlap) that
+    depend on identical tokens matching across question pairs.
     """
     tokens = word_tokenize(text.lower())
-    tagged = nltk.pos_tag(tokens)
-
-    lemmas = [lemmatizer.lemmatize(word, pos=get_wordnet_pos(tag)) for word, tag in tagged]
-    words = [w for w in lemmas if w not in ENGLISH_STOP_WORDS and w.isalpha()] 
+    words = [stemmer.stem(w) for w in tokens if w not in ENGLISH_STOP_WORDS and w.isalpha()]
 
     return " ".join(words)
 
