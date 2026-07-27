@@ -15,12 +15,13 @@ Detecting semantically duplicate questions has direct applications in FAQ dedupl
 
 ## Approach
 
-Four models, increasing in complexity:
+Two heuristic baselines (not counted as one of the required models), followed by four trained models, increasing in complexity:
 
 | # | Model | Tool | Purpose |
 |---|-------|------|---------|
-| 0 | Majority class baseline | — | Reference point (not counted as one of the three required models) |
-| 1 | TF-IDF cosine similarity + threshold | scikit-learn | Baseline model |
+| 0.1 | Majority class baseline | — | Reference point |
+| 0.2 | TF-IDF cosine similarity + threshold | scikit-learn | Heuristic baseline — a chosen threshold, no learned parameters |
+| 1 | Logistic Regression on TF-IDF vectors | scikit-learn | First trained model — question1/question2 TF-IDF vectors concatenated horizontally |
 | 2 | XGBoost on hand-crafted features | xgboost + Optuna | Mid-complexity model |
 | 3 | Fine-tuned Sentence Transformers (`all-MiniLM-L6-v2`) | sentence-transformers | Main model — fine-tuned on training pairs, not just pretrained inference |
 | 4 | LLM few-shot classification | Gemini free API | Fourth model (300–500 examples) |
@@ -33,11 +34,12 @@ Primary metric: **log loss** (course requirement — lower is better). Secondary
 
 | Model | Log Loss | F1 | ROC-AUC | Accuracy | Notes |
 |-------|----------|----|---------|----------|-------|
-| Majority baseline | | | | | |
-| TF-IDF cosine | | | | | |
-| XGBoost + Optuna | | | | | |
-| Fine-tuned Sentence Transformers | | | | | |
-| LLM few-shot | | | | | |
+| 0.1 Majority baseline | | | | | |
+| 0.2 TF-IDF cosine + threshold | | | | | |
+| 1. Logistic Regression | | | | | |
+| 2. XGBoost + Optuna | | | | | |
+| 3. Fine-tuned Sentence Transformers | | | | | |
+| 4. LLM few-shot | | | | | |
 
 ## Conclusions
 
