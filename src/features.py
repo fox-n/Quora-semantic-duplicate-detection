@@ -27,19 +27,11 @@ return it with new columns attached.
 import pandas as pd
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS, TfidfVectorizer
 from sklearn.metrics.pairwise import paired_cosine_distances
-import nltk
-from nltk.tokenize import word_tokenize
-nltk.download('punkt')
-nltk.download('punkt_tab')
-from nltk.stem import SnowballStemmer
-
-
-stemmer = SnowballStemmer("english")
 
 
 def preprocess_text(text):
-    """Lowercase, tokenize, drop English stop words, and stem the remaining
-    tokens. Returns a cleaned string (tokens rejoined with a single space).
+    """Lowercase, tokenize (whitespace split), and drop English stop words.
+    Returns a cleaned string (tokens rejoined with a single space).
 
     Used before word_overlap, bigrams_overlap, and TF-IDF vectorization --
     without it, stop words like "what"/"is"/"the" inflate common_words,
@@ -48,17 +40,17 @@ def preprocess_text(text):
     compensates for this on its own via IDF down-weighting, but the raw
     word/bigram overlap features do not, so this step matters most for those.
 
-    Uses SnowballStemmer (rule-based suffix stripping) instead of
-    WordNetLemmatizer + POS-tagging: stemming is context-independent, so the
-    same word always maps to the same stem regardless of sentence structure.
-    This matters here because POS-tagging short, informal questions is
-    unreliable, and inconsistent tags led to inconsistent lemmas -- which hurt
-    the exact-match features (jaccard, word_match_share, bigram overlap) that
-    depend on identical tokens matching across question pairs.
+    Deliberately a plain whitespace split, not nltk.word_tokenize: tokenizing
+    with nltk splits off punctuation into separate tokens (e.g. "what's" ->
+    "what", "'s", "?" as its own token), which pollutes the word sets used by
+    jaccard/word_match_share/bigram overlap with punctuation noise. Combined
+    with stemming/lemmatization, this was tried and measurably hurt ROC-AUC
+    (not just log_loss) -- both nltk tokenization and word-form normalization
+    made the features less informative, not just miscalibrated -- so neither
+    is used here.
     """
-    tokens = word_tokenize(text.lower())
-    words = [stemmer.stem(w) for w in tokens if w not in ENGLISH_STOP_WORDS and w.isalpha()]
-
+    words = text.lower().split()
+    words = [w for w in words if w not in ENGLISH_STOP_WORDS]
     return " ".join(words)
 
 
