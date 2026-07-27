@@ -11,6 +11,7 @@ Detecting semantically duplicate questions has direct applications in FAQ dedupl
 - Original source: [Kaggle — Quora Question Pairs](https://www.kaggle.com/competitions/quora-question-pairs/data)
 - Provided directly by the course as an 80/20 stratified split of the original Kaggle dataset (`quora_question_pairs_train.csv.zip`) — see course materials for the download link
 - Columns: `question1`, `question2`, `is_duplicate` (plus original dataset indices, kept intentionally)
+- Size: 323,429 pairs total — split 80/20 stratified (~258,743 train / ~64,686 validation)
 - Class balance: ~37% duplicate, ~63% unique
 
 ## Approach
@@ -21,7 +22,7 @@ Two heuristic baselines (not counted as one of the required models), followed by
 |---|-------|------|---------|
 | 0.1 | Majority class baseline | — | Reference point |
 | 0.2 | TF-IDF cosine similarity + threshold | scikit-learn | Heuristic baseline — a chosen threshold, no learned parameters |
-| 1 | Logistic Regression on TF-IDF vectors | scikit-learn | First trained model — question1/question2 TF-IDF vectors concatenated horizontally |
+| 1 | Logistic Regression on hand-crafted features | scikit-learn | First trained model — length, word/bigram overlap, and TF-IDF cosine similarity features, standardized (`StandardScaler`) |
 | 2 | XGBoost on hand-crafted features | xgboost + Optuna | Mid-complexity model |
 | 3 | Fine-tuned Sentence Transformers (`all-MiniLM-L6-v2`) | sentence-transformers | Main model — fine-tuned on training pairs, not just pretrained inference |
 | 4 | LLM few-shot classification | Gemini free API | Fourth model (300–500 examples) |
@@ -30,16 +31,16 @@ Primary metric: **log loss** (course requirement — lower is better). Secondary
 
 ## Results
 
-*(to be filled in after experiments — see `reports/experiment_table.csv`)*
+Pulled from `reports/experiment_table.csv` (most recent run of each model). Accuracy isn't currently computed by the evaluation pipeline (`src/evaluation.py` tracks F1/ROC-AUC/log loss only) — add it there if the course requires it in the final table.
 
 | Model | Log Loss | F1 | ROC-AUC | Accuracy | Notes |
 |-------|----------|----|---------|----------|-------|
-| 0.1 Majority baseline | | | | | |
-| 0.2 TF-IDF cosine + threshold | | | | | |
-| 1. Logistic Regression | | | | | |
-| 2. XGBoost + Optuna | | | | | |
-| 3. Fine-tuned Sentence Transformers | | | | | |
-| 4. LLM few-shot | | | | | |
+| 0.1 Majority baseline | 0.6585 | 0.000 | 0.500 | | |
+| 0.2 TF-IDF cosine + threshold | 1.1061 | 0.6311 | 0.7344 | | threshold=0.35 |
+| 1. Logistic Regression | 0.5227 | 0.6796 | 0.7948 | | hand-crafted features + StandardScaler |
+| 2. XGBoost + Optuna | 0.4466 | 0.7027 | 0.8412 | | Optuna-tuned |
+| 3. Fine-tuned Sentence Transformers | 0.3483 | 0.8251 | 0.9360 | | full train set, 2 epochs, threshold=0.60 |
+| 4. LLM few-shot | | | | | not started |
 
 ## Conclusions
 

@@ -14,3 +14,8 @@ __pycache__/
 # env
 .venv/
 venv/
+
+# models (fine-tuned weights -- large binary files, not committed)
+models/*
+!models/.gitkeep
+!models/README.md

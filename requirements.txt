@@ -3,7 +3,6 @@ numpy
 matplotlib
 seaborn
 scikit-learn
-nltk
 xgboost
 optuna
 sentence-transformers
