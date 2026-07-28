@@ -74,7 +74,7 @@ Model 3's fine-tuning approach in particular makes the connection concrete: trai
 5. Run notebooks in `notebooks/` in order (`01_eda.ipynb` → `07_test_evaluation.ipynb`), with one exception: **`04_sentence_transformers.ipynb` is meant to be run in Google Colab with a GPU runtime** (Runtime > Change runtime type > GPU), not locally -- fine-tuning is significantly faster on GPU, and this is what it was actually developed and run on. Upload `quora_with_features.csv` to the Colab session, run the notebook, then download the saved model folder and place it at `models/sentence_transformer_duplicate_model/` in your local clone before continuing to `06_error_analysis.ipynb` / `07_test_evaluation.ipynb` (which both load the model locally). Note: `07_test_evaluation.ipynb` scores the held-out test set and is meant to be run once, with the final chosen model -- re-running it repeatedly defeats the purpose of holding a test set out.
 6. To try the live demo: `streamlit run app.py`
 
-Live app: *(Streamlit Cloud link — TBD)*
+Live app: https://quora-semantic-duplicate-detection.streamlit.app
 
 ## Repository Structure
 
