@@ -31,17 +31,17 @@ Primary metric: **log loss** (course requirement — lower is better). Secondary
 
 ## Results
 
-Pulled from `reports/experiment_table.csv` (most recent run of each model). Accuracy isn't currently computed by the evaluation pipeline (`src/evaluation.py` tracks F1/ROC-AUC/log loss only) — add it there if the course requires it in the final table.
+Pulled from `reports/experiment_table.csv` (most recent run of each model).
 
-| Model | Log Loss | F1 | ROC-AUC | Accuracy | Notes |
-|-------|----------|----|---------|----------|-------|
-| 0.1 Majority baseline | 0.6585 | 0.000 | 0.500 | | |
-| 0.2 TF-IDF cosine + threshold | 1.1061 | 0.6311 | 0.7344 | | threshold=0.35 |
-| 1. Logistic Regression | 0.5227 | 0.6796 | 0.7948 | | hand-crafted features + StandardScaler |
-| 2. XGBoost + Optuna | 0.4466 | 0.7027 | 0.8412 | | Optuna-tuned |
-| 3. Fine-tuned Sentence Transformers | 0.3483 | 0.8251 | 0.9360 | | full train set, 2 epochs, threshold=0.60 |
-| 4. LLM few-shot | 0.3133 | 0.8312 | 0.9405 | | Claude Haiku, 4 hand-picked few-shot examples, threshold=0.5. **Evaluated on a 500-row stratified subsample of val, not the full ~64,686** — not directly comparable in sample size to Models 0-3 |
-| **3. Final test set** | **0.3488** | **0.8247** | **0.9360** | | Held-out test (80,858 pairs, never touched before), same threshold=0.60 chosen on train, not re-tuned. Nearly identical to val (0.3483 / 0.8251 / 0.9360) — confirms the model generalizes well |
+| Model | Log Loss | F1 | ROC-AUC | Notes |
+|-------|----------|----|---------|-------|
+| 0.1 Majority baseline | 0.6585 | 0.000 | 0.500 | |
+| 0.2 TF-IDF cosine + threshold | 1.1061 | 0.6311 | 0.7344 | threshold=0.35 |
+| 1. Logistic Regression | 0.5227 | 0.6796 | 0.7948 | hand-crafted features + StandardScaler |
+| 2. XGBoost + Optuna | 0.4466 | 0.7027 | 0.8412 | Optuna-tuned |
+| 3. Fine-tuned Sentence Transformers | 0.3483 | 0.8251 | 0.9360 | full train set, 2 epochs, threshold=0.60 |
+| 4. LLM few-shot | 0.3133 | 0.8312 | 0.9405 | Claude Haiku, 4 hand-picked few-shot examples, threshold=0.5. **Evaluated on a 500-row stratified subsample of val, not the full ~64,686** — not directly comparable in sample size to Models 0-3 |
+| **3. Final test set** | **0.3488** | **0.8247** | **0.9360** | Held-out test (80,858 pairs, never touched before), same threshold=0.60 chosen on train, not re-tuned. Nearly identical to val (0.3483 / 0.8251 / 0.9360) — confirms the model generalizes well |
 
 ## Conclusions
 
