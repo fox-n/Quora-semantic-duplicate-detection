@@ -17,7 +17,5 @@ venv/
 .env
 creds.json
 
-# models (fine-tuned weights -- large binary files, not committed)
-models/*
-!models/.gitkeep
-!models/README.md
+# models (fine-tuned weights)
+# committed intentionally so Streamlit Cloud can deploy app.py directly from the repo
