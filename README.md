@@ -25,7 +25,7 @@ Two heuristic baselines (not counted as one of the required models), followed by
 | 1 | Logistic Regression on hand-crafted features | scikit-learn | First trained model — length, word/bigram overlap, and TF-IDF cosine similarity features, standardized (`StandardScaler`) |
 | 2 | XGBoost on hand-crafted features | xgboost + Optuna | Mid-complexity model |
 | 3 | Fine-tuned Sentence Transformers (`all-MiniLM-L6-v2`) | sentence-transformers | Main model — fine-tuned on training pairs, not just pretrained inference |
-| 4 | LLM few-shot classification | Gemini free API | Fourth model (300–500 examples) |
+| 4 | LLM few-shot classification | Claude API | Fourth model (300–500 examples) |
 
 Primary metric: **log loss** (course requirement — lower is better). Secondary: F1-score, ROC-AUC, Accuracy, Confusion Matrix.
 
@@ -40,7 +40,7 @@ Pulled from `reports/experiment_table.csv` (most recent run of each model). Accu
 | 1. Logistic Regression | 0.5227 | 0.6796 | 0.7948 | | hand-crafted features + StandardScaler |
 | 2. XGBoost + Optuna | 0.4466 | 0.7027 | 0.8412 | | Optuna-tuned |
 | 3. Fine-tuned Sentence Transformers | 0.3483 | 0.8251 | 0.9360 | | full train set, 2 epochs, threshold=0.60 |
-| 4. LLM few-shot | | | | | not started |
+| 4. LLM few-shot | 0.3133 | 0.8312 | 0.9405 | | Claude Haiku, 4 hand-picked few-shot examples, threshold=0.5. **Evaluated on a 500-row stratified subsample of val, not the full ~64,686** — not directly comparable in sample size to Models 0-3 |
 
 ## Conclusions
 
