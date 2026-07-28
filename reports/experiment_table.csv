@@ -27,3 +27,9 @@ Model 2: XGBoost (Optuna-tuned),,"{'objective': 'binary:logistic', 'base_score':
 Model 3 - Sentence Transformer (bi-encoder),0.6000000000000002,,,0.8655789521672399,0.9576900085700748,0.2920401274532791,0.8250513843549752,0.9359661278119693,0.3482835890364064
 Model 4 - LLM few-shot (Claude API),0.5,,,,,,0.8311688311688312,0.9405458581374231,0.31327522353705356
 Model 3 - Sentence Transformer (FINAL TEST SET),0.6,,,,,,0.824745926762381,0.9359817531943184,0.34880331158638
+Model 0.1: Majority class baseline,,,,,,,0.0,0.5,0.6585279444319896
+Model 0.2: cosine similarity,0.3500000000000001,,,,,,0.63113377147741,0.73442959225784,1.1061281457092904
+Model 1 - Logistic regression,,"{'C': 0.1, 'class_weight': 'balanced', 'dual': False, 'fit_intercept': True, 'intercept_scaling': 1, 'l1_ratio': 0.0, 'max_iter': 1000, 'n_jobs': None, 'penalty': 'deprecated', 'random_state': None, 'solver': 'sag', 'tol': 0.0001, 'verbose': 0, 'warm_start': False}",1.116044044494629,0.6779808269700054,0.793179196919394,0.5243335416745627,0.6795781857893659,0.7948078333642188,0.5226740353797713
+Model 0.1: Majority class baseline,,,,,,,0.0,0.5,0.6585279444319896
+Model 0.2: cosine similarity,0.3500000000000001,,,,,,0.63113377147741,0.73442959225784,1.1061281457092904
+Model 1 - Logistic regression,,"{'C': 0.1, 'class_weight': 'balanced', 'dual': False, 'fit_intercept': True, 'intercept_scaling': 1, 'l1_ratio': 0.0, 'max_iter': 1000, 'n_jobs': None, 'penalty': 'deprecated', 'random_state': None, 'solver': 'sag', 'tol': 0.0001, 'verbose': 0, 'warm_start': False}",1.1360461711883545,0.6779780841286673,0.7931801379708338,0.5243259559703245,0.679567250264496,0.7948088436454565,0.5226663770003753

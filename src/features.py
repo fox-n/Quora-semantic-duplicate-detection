@@ -9,7 +9,7 @@ Text preprocessing:
                                              word_overlap, bigrams_overlap, and
                                              add_tfidf_cosine_similarity.
 
-Features implemented (validated in Final_project.ipynb via class-split distribution
+Features implemented (validated in 01_eda.ipynb via class-split distribution
 plots):
 - question1_len, question2_len, len_dif   : question lengths and length difference
 - common_words, jaccard_similarity,
@@ -40,14 +40,6 @@ def preprocess_text(text):
     compensates for this on its own via IDF down-weighting, but the raw
     word/bigram overlap features do not, so this step matters most for those.
 
-    Deliberately a plain whitespace split, not nltk.word_tokenize: tokenizing
-    with nltk splits off punctuation into separate tokens (e.g. "what's" ->
-    "what", "'s", "?" as its own token), which pollutes the word sets used by
-    jaccard/word_match_share/bigram overlap with punctuation noise. Combined
-    with stemming/lemmatization, this was tried and measurably hurt ROC-AUC
-    (not just log_loss) -- both nltk tokenization and word-form normalization
-    made the features less informative, not just miscalibrated -- so neither
-    is used here.
     """
     words = text.lower().split()
     words = [w for w in words if w not in ENGLISH_STOP_WORDS]

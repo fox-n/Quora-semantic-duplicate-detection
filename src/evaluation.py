@@ -35,9 +35,6 @@ sections):
                                      and none of that should hit stdout or
                                      the CSV.
 
-Planned (not yet implemented):
-- plot_roc_curve(y_true, y_proba)
-
 Reminder: the held-out test set should only be scored once, at the end,
 with the best-performing model.
 """

@@ -70,8 +70,9 @@ Model 3's fine-tuning approach in particular makes the connection concrete: trai
 1. Clone this repository
 2. Install dependencies: `pip install -r requirements.txt`
 3. Get `quora_question_pairs_train.csv.zip` from the course materials (see Data section) and place it in the project root or point notebooks to your path
-4. Run notebooks in `notebooks/` in order (`01_eda.ipynb` → `07_test_evaluation.ipynb`). Note: `07_test_evaluation.ipynb` scores the held-out test set and is meant to be run once, with the final chosen model -- re-running it repeatedly defeats the purpose of holding a test set out.
-5. To try the live demo: `streamlit run app.py`
+4. **Update file paths.** The notebooks were developed locally and several cells reference absolute paths on the author's machine (e.g. `/Users/nadiiababanska/Desktop/claude_coowork/ML_final_project/...`) for the dataset CSVs, the saved model in `models/`, and `reports/experiment_table.csv`. These won't resolve on another machine -- search each notebook for `/Users/nadiiababanska/` and replace with the equivalent path in your own clone (or make them relative to the repo root) before running.
+5. Run notebooks in `notebooks/` in order (`01_eda.ipynb` → `07_test_evaluation.ipynb`), with one exception: **`04_sentence_transformers.ipynb` is meant to be run in Google Colab with a GPU runtime** (Runtime > Change runtime type > GPU), not locally -- fine-tuning is significantly faster on GPU, and this is what it was actually developed and run on. Upload `quora_with_features.csv` to the Colab session, run the notebook, then download the saved model folder and place it at `models/sentence_transformer_duplicate_model/` in your local clone before continuing to `06_error_analysis.ipynb` / `07_test_evaluation.ipynb` (which both load the model locally). Note: `07_test_evaluation.ipynb` scores the held-out test set and is meant to be run once, with the final chosen model -- re-running it repeatedly defeats the purpose of holding a test set out.
+6. To try the live demo: `streamlit run app.py`
 
 Live app: *(Streamlit Cloud link — TBD)*
 

@@ -16,14 +16,6 @@ General helper functions shared across notebooks.
                                  for "hard case" examples in EDA, and
                                  reusable later in 06_error_analysis.ipynb
                                  once real model predictions exist
-
-Planned (not yet implemented):
-- load_data(path) -> pd.DataFrame        : load and lightly clean train.csv
-- train_val_test_split(df, ...)          : consistent, reusable split logic
-- set_seed(seed=42)                      : reproducibility helper
-- subsample(df, n=50_000, seed=42)       : subsampling helper for Sentence
-                                            Transformers on Colab (avoid timeout
-                                            on full 400K pairs)
 """
 
 import matplotlib.pyplot as plt
