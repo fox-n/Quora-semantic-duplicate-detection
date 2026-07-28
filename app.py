@@ -25,6 +25,7 @@ def load_model():
 
 
 st.set_page_config(page_title="Quora Duplicate Question Checker")
+st.image(os.path.join(os.path.dirname(__file__), "assets", "banner.png"))
 st.title("Semantic Duplicate Question Detector")
 
 st.write(
