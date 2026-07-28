@@ -32,6 +32,7 @@ st.write(
     "Enter two questions to check whether they are semantically "
     "equivalent (duplicates)."
 )
+st.caption("Note: the model was trained on English questions only -- enter questions in English.")
 
 model = load_model()
 
