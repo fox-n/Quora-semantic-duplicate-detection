@@ -72,6 +72,8 @@ Both semantic models (3, 4) clearly outperform the lexical/hand-crafted-feature 
 
 Live app: https://quora-semantic-duplicate-detection.streamlit.app
 
+![App screenshot](assets/app_screenshot.png)
+
 ## Repository Structure
 
 ```
