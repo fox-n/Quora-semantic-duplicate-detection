@@ -8,8 +8,8 @@ Detecting semantically duplicate questions has direct applications in FAQ dedupl
 
 ## Data
 
-- Original source: [Kaggle — Quora Question Pairs](https://www.kaggle.com/competitions/quora-question-pairs/data)
-- Provided directly by the course as an 80/20 stratified split of the original Kaggle dataset (`quora_question_pairs_train.csv.zip`) — see course materials for the download link
+- Source: [Kaggle — Quora Question Pairs](https://www.kaggle.com/competitions/quora-question-pairs/data)
+- 80/20 stratified split of the original dataset (`quora_question_pairs_train.csv.zip`)
 - Columns: `question1`, `question2`, `is_duplicate` (plus original dataset indices, kept intentionally)
 - Size: 323,429 pairs total — split 80/20 stratified (~258,743 train / ~64,686 validation)
 - Class balance: ~37% duplicate, ~63% unique
@@ -27,7 +27,7 @@ Two heuristic baselines (not counted as one of the required models), followed by
 | 3 | Fine-tuned Sentence Transformers (`all-MiniLM-L6-v2`) | sentence-transformers | Main model — fine-tuned on training pairs, not just pretrained inference |
 | 4 | LLM few-shot classification | Claude API | Fourth model (300–500 examples) |
 
-Primary metric: **log loss** (course requirement — lower is better). Secondary: F1-score, ROC-AUC, Accuracy, Confusion Matrix.
+Primary metric: **log loss** — penalizes overconfident wrong predictions, which matters when the output feeds an automated decision rather than a human review step. Secondary: F1-score, ROC-AUC, Accuracy, Confusion Matrix.
 
 ## Results
 
@@ -61,18 +61,12 @@ Both semantic models (3, 4) clearly outperform the lexical/hand-crafted-feature 
 
 **What to improve next.** Score Model 4 on the full validation set (or a much larger subsample) to confirm whether its edge over Model 3 is real. Expand the Model 4 few-shot prompt with a couple of hard examples surfaced by error analysis (not from the evaluated sample itself, to avoid leakage) and re-check whether that closes the numeric-detail inconsistency. Try more epochs / a larger base model for Model 3, now that a full training run is confirmed to be fast and cheap.
 
-### Connection to Signal ML
-
-This project sits in the GenAI/NLP segment of the job market (RAG, embeddings, semantic search — the highest-demand cluster right now), but the underlying math is the same one used in defense/signal roles (radar tracking, ELINT, RF signal classification) that this project's author is targeting long-term. Both problem types reduce to the same pipeline: raw input (text, or a raw signal) → a fixed-length vector representation (a TF-IDF vector, a fine-tuned sentence embedding, or a spectral/waveform feature vector) → a similarity or distance metric in that vector space (cosine similarity here; cosine similarity, correlation, or Mahalanobis distance in signal-processing contexts) → a threshold-based decision.
-
-Model 3's fine-tuning approach in particular makes the connection concrete: training embeddings with `CosineSimilarityLoss` so that semantically equivalent pairs end up close together and non-equivalent pairs end up far apart is the same idea as the metric/contrastive learning used for specific emitter identification (SEI) and multi-target track association (e.g. Kalman Filter / SORT-style data association pipelines). Deciding whether two observations are "the same thing" is a similarity-in-embedding-space problem whether the observation is a sentence pair or a radar return matched across frames. This project was a way to practice that shared foundation on an accessible, well-labeled NLP dataset before applying the same approach to noisier, physics-heavy signal data.
-
 ## How to Run
 
 1. Clone this repository
 2. Install dependencies: `pip install -r requirements.txt`
-3. Get `quora_question_pairs_train.csv.zip` from the course materials (see Data section) and place it in the project root or point notebooks to your path
-4. **Update file paths.** The notebooks were developed locally and several cells reference absolute paths on the author's machine (e.g. `/Users/nadiiababanska/Desktop/claude_coowork/ML_final_project/...`) for the dataset CSVs, the saved model in `models/`, and `reports/experiment_table.csv`. These won't resolve on another machine -- search each notebook for `/Users/nadiiababanska/` and replace with the equivalent path in your own clone (or make them relative to the repo root) before running.
+3. Get `quora_question_pairs_train.csv.zip` (see Data section for source) and place it in the project root or point notebooks to your path
+4. **Update file paths.** A few notebook cells still reference local absolute paths for the dataset CSVs, the saved model in `models/`, and `reports/experiment_table.csv`. Update these to your own clone's path (or make them relative to the repo root) before running.
 5. Run notebooks in `notebooks/` in order (`01_eda.ipynb` → `07_test_evaluation.ipynb`), with one exception: **`04_sentence_transformers.ipynb` is meant to be run in Google Colab with a GPU runtime** (Runtime > Change runtime type > GPU), not locally -- fine-tuning is significantly faster on GPU, and this is what it was actually developed and run on. Upload `quora_with_features.csv` to the Colab session, run the notebook, then download the saved model folder and place it at `models/sentence_transformer_duplicate_model/` in your local clone before continuing to `06_error_analysis.ipynb` / `07_test_evaluation.ipynb` (which both load the model locally). Note: `07_test_evaluation.ipynb` scores the held-out test set and is meant to be run once, with the final chosen model -- re-running it repeatedly defeats the purpose of holding a test set out.
 6. To try the live demo: `streamlit run app.py`
 
