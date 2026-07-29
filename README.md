@@ -33,15 +33,15 @@ Primary metric: **log loss** (course requirement — lower is better). Secondary
 
 Pulled from `reports/experiment_table.csv` (most recent run of each model).
 
-| Model | Log Loss | F1 | ROC-AUC | Notes |
-|-------|----------|----|---------|-------|
-| 0.1 Majority baseline | 0.6585 | 0.000 | 0.500 | |
-| 0.2 TF-IDF cosine + threshold | 1.1061 | 0.6311 | 0.7344 | threshold=0.35 |
-| 1. Logistic Regression | 0.5227 | 0.6796 | 0.7948 | hand-crafted features + StandardScaler |
-| 2. XGBoost + Optuna | 0.4466 | 0.7027 | 0.8412 | Optuna-tuned |
-| 3. Fine-tuned Sentence Transformers | 0.3483 | 0.8251 | 0.9360 | full train set, 2 epochs, threshold=0.60 |
-| 4. LLM few-shot | 0.3133 | 0.8312 | 0.9405 | Claude Haiku, 4 hand-picked few-shot examples, threshold=0.5. **Evaluated on a 500-row stratified subsample of val, not the full ~64,686** — not directly comparable in sample size to Models 0-3 |
-| **3. Final test set** | **0.3488** | **0.8247** | **0.9360** | Held-out test (80,858 pairs, never touched before), same threshold=0.60 chosen on train, not re-tuned. Nearly identical to val (0.3483 / 0.8251 / 0.9360) — confirms the model generalizes well |
+| Model | Log Loss | F1 | ROC-AUC | Training Time | Notes |
+|-------|----------|----|---------|----------------|-------|
+| 0.1 Majority baseline | 0.6585 | 0.000 | 0.500 | — (no training) | |
+| 0.2 TF-IDF cosine + threshold | 1.1061 | 0.6311 | 0.7344 | — (no training, threshold search only) | threshold=0.35 |
+| 1. Logistic Regression | 0.5227 | 0.6796 | 0.7948 | ~1.2 sec | hand-crafted features + StandardScaler |
+| 2. XGBoost + Optuna | 0.4466 | 0.7027 | 0.8412 | ~3.9 sec (final fit only; Optuna's search across trials took longer, not tracked separately) | Optuna-tuned |
+| 3. Fine-tuned Sentence Transformers | 0.3483 | 0.8251 | 0.9360 | ~28 min (1685 sec), 2 epochs, full train set, Colab free-tier GPU | threshold=0.60 |
+| 4. LLM few-shot | 0.3133 | 0.8312 | 0.9405 | — (no training, few-shot prompting only) | Claude Haiku, 4 hand-picked few-shot examples, threshold=0.5. **Evaluated on a 500-row stratified subsample of val, not the full ~64,686** — not directly comparable in sample size to Models 0-3 |
+| **3. Final test set** | **0.3488** | **0.8247** | **0.9360** | same model as above, not retrained | Held-out test (80,858 pairs, never touched before), same threshold=0.60 chosen on train, not re-tuned. Nearly identical to val (0.3483 / 0.8251 / 0.9360) — confirms the model generalizes well |
 
 ## Conclusions
 
@@ -49,11 +49,13 @@ Pulled from `reports/experiment_table.csv` (most recent run of each model).
 
 Both semantic models (3, 4) clearly outperform the lexical/hand-crafted-feature models (0.2, 1, 2) by a wide margin (log loss 0.35-0.31 vs 0.45-1.1) — the single biggest driver of performance in this project was moving from word-overlap features to learned/pretrained semantic embeddings, not hyperparameter tuning within a given feature set.
 
+**Preprocessing insight.** Applying stemming or lemmatization during text preprocessing (`src/features.py`) was tried early on but made the hand-crafted word/bigram-overlap features *less* informative, not more — it collapsed distinct words down to shared roots and reduced the vocabulary's ability to distinguish genuinely different questions, which lowered downstream model performance compared to plain lowercase + split + stopword removal. This project ended up using the simpler preprocessing as a result.
+
 **Practical insights (from `06_error_analysis.ipynb`).** Both top models fail in similar ways: pairs on the same topic but with a meaning-changing detail (an opinion question vs. a factual one, a qualifying condition, a changed question word like "how" vs. "why"), genuine synonym/paraphrase duplicates with little shared vocabulary, and typos/abbreviations. A direct same-pair cross-check found no consistent difference between the two models specifically on numeric-detail sensitivity (e.g. "top 10" vs "top 5") — both handle it inconsistently. Manual review of a sample of "errors" also found a substantial share are actually label problems in the source data (~22% for Model 3, ~48% for Model 4, though the latter estimate is noisier given the smaller error pool) — meaning both models' true quality is somewhat understated by the raw metrics above.
 
 **Business application.** Directly supports the use case in [Business Problem](#business-problem): flagging duplicate questions in a Q&A platform, deduplicating FAQ entries, or catching repeated customer inquiries before they're answered twice. Model 3's bi-encoder design (encode once, compare via cosine similarity) is what makes this practical at scale — new-question embeddings can be compared against a precomputed index of existing questions in near-real-time, which a pairwise/cross-encoder or per-call LLM approach can't do cheaply at high query volume.
 
-**Limitations.** (1) Label noise in the underlying Quora dataset affects both training and evaluation — some fraction of "errors" for every model are arguably correct predictions against a wrong label, and this hasn't been corrected at the dataset level, only spot-checked manually on a small sample. (2) Model 4 was evaluated on a much smaller sample than Models 0-3, so its ranking above Model 3 should be treated as provisional, not confirmed. (3) The four Model 4 few-shot examples were hand-picked once and not systematically validated against alternative choices. (4) Model 3 was fine-tuned for only 2 epochs on the full train set — given how cheap training turned out to be (~35 min/3 epochs on a free Colab GPU), there's likely headroom left untried.
+**Limitations.** (1) Label noise in the underlying Quora dataset affects both training and evaluation — some fraction of "errors" for every model are arguably correct predictions against a wrong label, and this hasn't been corrected at the dataset level, only spot-checked manually on a small sample. (2) Model 4 was evaluated on a much smaller sample than Models 0-3, so its ranking above Model 3 should be treated as provisional, not confirmed. (3) The four Model 4 few-shot examples were hand-picked once and not systematically validated against alternative choices. (4) Model 3 was fine-tuned for only 2 epochs on the full train set — given how cheap training turned out to be (~28 min for 2 epochs on a free Colab GPU), there's likely headroom left untried.
 
 **Final test set result.** Model 3, scored once on the held-out test set (`07_test_evaluation.ipynb`, 80,858 pairs, untouched until this point): log loss 0.3488, F1 0.8247, ROC-AUC 0.9360 — nearly identical to its validation numbers (0.3483 / 0.8251 / 0.9360). The threshold (0.60) was fixed from train, not re-tuned on test. This close match confirms the model generalizes well and that the val-based model selection wasn't overfit to val.
 
